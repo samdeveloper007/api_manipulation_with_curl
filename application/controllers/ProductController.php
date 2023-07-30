@@ -1,4 +1,5 @@
 <?php
+    defined('BASEPATH') OR exit('No direct script access allowed');
     error_reporting(0);
     class ProductController extends CI_Controller{
         public function __construct()
@@ -38,25 +39,34 @@
         }
 
         public function store(){
-            $url='http://localhost/restfull_api_ci/index.php/api/products/';
-            $data= [
-                "name"=>"Laptop",
-                "price"=>"56000"
-            ];
+            $postdata= $this->input->post();
+            if(!empty($postdata)){
+                $url='http://localhost/restfull_api_ci/index.php/api/products/';
+                $data= $postdata;
 
-            $options = array(
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_SSL_VERIFYHOST => true,
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_POSTFIELDS => $data
-            );
+                $options = array(
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_SSL_VERIFYHOST => true,
+                    CURLOPT_SSL_VERIFYPEER => true,
+                    CURLOPT_POSTFIELDS => $data
+                );
 
-            // Perform cURL request here using $apiURL and store the response in $response.
-            $ch = curl_init($url);
-            curl_setopt_array($ch, $options);
-            $response = curl_exec($ch);
-            curl_close($ch);
+                // Perform cURL request here using $apiURL and store the response in $response.
+                $ch = curl_init($url);
+                curl_setopt_array($ch, $options);
+                $response = curl_exec($ch);
+                if($response===false){
+                    echo "cURL error : ".curl_error($ch);
+                }else{
+                    $response= json_decode($response);
+                    print_r($response->message);
+                }
+                curl_close($ch);
+            }else{
+                $this->load->view('products/add');
+            }
+            
         }
 
         public function update($id){
